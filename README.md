@@ -33,8 +33,8 @@ TODO
 3. `6610505276` *ก้องสกุล พันธุ์ยาง*
 ([@balliolon2](https://github.com/balliolon2)) - TODO
 4. `6610505560` *วรุตม์ มาศสุวรรณ*
-([@nightyneko](https://github.com/nightyneko)) - **Software
-Architecture**
+([@nightyneko](https://github.com/nightyneko)) - **API & Database
+Design**
 
 ## System Architecture
 
