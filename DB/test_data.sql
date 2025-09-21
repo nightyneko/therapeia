@@ -65,23 +65,23 @@ WHERE a.patient_id='0e01abb3-da7e-4aaf-8b10-4834625f19bb'
 
 -- ===== Medicines =====
 INSERT INTO medicines (medicine_name,details,unit_price,image_url)
-SELECT 'Paracetamol 500 mg tablets','Pain reliever and fever reducer',0.05,
+SELECT 'Paracetamol 500 mg tablets','ยาแก้ปวดและลดไข้',50,
        'https://assets.sainsburys-groceries.co.uk/gol/8075006/1/640x640.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM medicines WHERE medicine_name='Paracetamol 500 mg tablets');
 
 INSERT INTO medicines (medicine_name,details,unit_price,image_url)
-SELECT 'Ibuprofen 200 mg tablets','Non-steroidal anti-inflammatory drug',0.10,
+SELECT 'Ibuprofen 200 mg tablets','ยาต้านการอักเสบที่ไม่ใช่สเตียรอยด์',100,
        'https://tmanpharmaceutical.com/wp-content/uploads/2024/01/206A1A1.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM medicines WHERE medicine_name='Ibuprofen 200 mg tablets');
 
 INSERT INTO medicines (medicine_name,details,unit_price,image_url)
-SELECT 'Amoxicillin 500 mg capsules','Penicillin antibiotic for bacterial infections',0.20,
+SELECT 'Amoxicillin 500 mg capsules','ยาปฏิชีวนะเพนิซิลลินสำหรับการติดเชื้อแบคทีเรีย',200,
        'https://5.imimg.com/data5/SELLER/Default/2025/4/501570426/QD/SO/KM/6695503/amoxicillin-500mg-capsule.png'
 WHERE NOT EXISTS (SELECT 1 FROM medicines WHERE medicine_name='Amoxicillin 500 mg capsules');
 
 -- ===== Prescription (Ibuprofen) =====
 INSERT INTO prescriptions (patient_id,medicine_id,dosage,amount,on_going,doctor_comment)
-SELECT '0e01abb3-da7e-4aaf-8b10-4834625f19bb', m.medicine_id, '1 tablet three times daily', 30, false, 'Take after meals'
+SELECT '0e01abb3-da7e-4aaf-8b10-4834625f19bb', m.medicine_id, '1 เม็ด วันละ 3 ครั้ง', 30, false, 'รับประทานหลังมื้ออาหาร'
 FROM medicines m
 WHERE m.medicine_name='Ibuprofen 200 mg tablets'
   AND NOT EXISTS (
@@ -93,7 +93,7 @@ WHERE m.medicine_name='Ibuprofen 200 mg tablets'
 INSERT INTO medical_rights (name,details,img_url)
 SELECT 'สำนักงานหลักประกันสุขภาพแห่งชาติ','บัตรทอง 30 บาทรักษาทุกโรค สำหรับประชาชนทั่วไป',
        'https://songkhla.nhso.go.th/files/Content/1868/134006650103856250_icon-nhso.jpg'
-WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='Universal Coverage Scheme');
+WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='สำนักงานหลักประกันสุขภาพแห่งชาติ');
 
 INSERT INTO medical_rights (name,details,img_url)
 SELECT 'ประกันสังคม','สำหรับลูกจ้างและนายจ้างที่จ่ายเงินสมทบประกันสังคม',
@@ -108,7 +108,7 @@ WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='กรมบัญช
 INSERT INTO user_mr (patient_id,mr_id)
 SELECT '0e01abb3-da7e-4aaf-8b10-4834625f19bb', mr.mr_id
 FROM medical_rights mr
-WHERE mr.name='Universal Coverage Scheme'
+WHERE mr.name='ประกันสังคม'
 ON CONFLICT DO NOTHING;
 
 -- ===== One “SHIPPING” order with an image =====
@@ -155,33 +155,33 @@ ON CONFLICT (patient_id) DO NOTHING;
 
 -- ===== Shipping status (TIMESTAMPTZ with +07) =====
 INSERT INTO shipping_status (order_id,details,lat,lon,at)
-SELECT ord.order_id,'Package received at warehouse',13.7000,100.5000,'2025-09-21 10:00:00+07'::timestamptz
+SELECT ord.order_id,'พัสดุถึงคลังสินค้าแล้ว',13.7000,100.5000,'2025-09-21 10:00:00+07'::timestamptz
 FROM (SELECT order_id FROM orders
       WHERE patient_id='0e01abb3-da7e-4aaf-8b10-4834625f19bb' AND status='SHIPPING'
       ORDER BY created_at DESC LIMIT 1) ord
 WHERE NOT EXISTS (
-  SELECT 1 FROM shipping_status s WHERE s.order_id=ord.order_id AND s.details='Package received at warehouse'
+  SELECT 1 FROM shipping_status s WHERE s.order_id=ord.order_id AND s.details='พัสดุถึงคลังสินค้าแล้ว'
 );
 
 INSERT INTO shipping_status (order_id,details,lat,lon,at)
-SELECT ord.order_id,'Out for delivery',13.7400,100.5200,'2025-09-22 08:30:00+07'::timestamptz
+SELECT ord.order_id,'พัสดุกำลังจัดส่ง',13.7400,100.5200,'2025-09-22 08:30:00+07'::timestamptz
 FROM (SELECT order_id FROM orders
       WHERE patient_id='0e01abb3-da7e-4aaf-8b10-4834625f19bb' AND status='SHIPPING'
       ORDER BY created_at DESC LIMIT 1) ord
 WHERE NOT EXISTS (
-  SELECT 1 FROM shipping_status s WHERE s.order_id=ord.order_id AND s.details='Out for delivery'
+  SELECT 1 FROM shipping_status s WHERE s.order_id=ord.order_id AND s.details='พัสดุกำลังจัดส่งy'
 );
 
 INSERT INTO shipping_status (order_id,details,lat,lon,at)
-SELECT ord.order_id,'Delivered',13.7563,100.5018,'2025-09-23 15:45:00+07'::timestamptz
+SELECT ord.order_id,'จัดส่งสำเร็จ ',13.7563,100.5018,'2025-09-23 15:45:00+07'::timestamptz
 FROM (SELECT order_id FROM orders
       WHERE patient_id='0e01abb3-da7e-4aaf-8b10-4834625f19bb' AND status='SHIPPING'
       ORDER BY created_at DESC LIMIT 1) ord
 WHERE NOT EXISTS (
-  SELECT 1 FROM shipping_status s WHERE s.order_id=ord.order_id AND s.details='Delivered'
+  SELECT 1 FROM shipping_status s WHERE s.order_id=ord.order_id AND s.details='จัดส่งสำเร็จ '
 );
 
 -- ===== Patient health profile =====
 INSERT INTO patient_health_info (patient_id,age,gender,height_cm,weight_kg,medical_conditions,drug_allergies)
-VALUES ('0e01abb3-da7e-4aaf-8b10-4834625f19bb',35,'Male',175.0,70.0,'Hypertension','Penicillin')
+VALUES ('0e01abb3-da7e-4aaf-8b10-4834625f19bb',35,'ชาย',175.0,70.0,'ความดันโลหิตสูง','Penicillin')
 ON CONFLICT (patient_id) DO NOTHING;

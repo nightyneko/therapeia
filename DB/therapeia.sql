@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS users (
   first_name  varchar NOT NULL,
   last_name   varchar NOT NULL,
   citizen_id  varchar UNIQUE NOT NULL, -- National ID / license number
-  password    text NOT NULL,           -- store hash, not raw password
+  password    text NOT NULL,           -- store hash
   created_at  timestamptz NOT NULL DEFAULT now(),
   updated_at  timestamptz NOT NULL DEFAULT now()
 );
