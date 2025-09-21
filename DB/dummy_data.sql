@@ -43,7 +43,7 @@ WHERE NOT EXISTS (
     AND start_time='14:00' AND end_time='17:00'
 );
 
--- ===== Appointment (Tue 2025-09-23 using the Mon 09:00 slot) =====
+-- ===== Appointment =====
 INSERT INTO appointments (patient_id,timeslot_id,date,status)
 SELECT '0e01abb3-da7e-4aaf-8b10-4834625f19bb', ts.timeslot_id, DATE '2025-09-23', 'ACCEPTED'
 FROM time_slots ts
@@ -55,7 +55,7 @@ INSERT INTO diagnoses (appointment_id,patient_id,doctor_id,symptom)
 SELECT a.appointment_id,
        '0e01abb3-da7e-4aaf-8b10-4834625f19bb',
        'a39b6135-22bf-4b06-b4b7-e34daa460258',
-       'Mild fever and sore throat'
+       'เจ็บคอ และเป็นไข้เล็กน้อย'
 FROM appointments a
 JOIN time_slots ts ON ts.timeslot_id=a.timeslot_id
 WHERE a.patient_id='0e01abb3-da7e-4aaf-8b10-4834625f19bb'
@@ -63,20 +63,20 @@ WHERE a.patient_id='0e01abb3-da7e-4aaf-8b10-4834625f19bb'
   AND ts.day_of_weeks=1 AND ts.start_time='09:00'
   AND NOT EXISTS (SELECT 1 FROM diagnoses d WHERE d.appointment_id=a.appointment_id);
 
--- ===== Medicines (with real image URLs) =====
+-- ===== Medicines =====
 INSERT INTO medicines (medicine_name,details,unit_price,image_url)
 SELECT 'Paracetamol 500 mg tablets','Pain reliever and fever reducer',0.05,
-       'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Paracetamol_acetaminophen_500_mg_pills.jpg/640px-Paracetamol_acetaminophen_500_mg_pills.jpg'
+       'https://assets.sainsburys-groceries.co.uk/gol/8075006/1/640x640.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM medicines WHERE medicine_name='Paracetamol 500 mg tablets');
 
 INSERT INTO medicines (medicine_name,details,unit_price,image_url)
 SELECT 'Ibuprofen 200 mg tablets','Non-steroidal anti-inflammatory drug',0.10,
-       'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Bottle_of_Ibuprofen_tablets_with_cap_removed_and_tablets_in_front.jpg/500px-Bottle_of_Ibuprofen_tablets_with_cap_removed_and_tablets_in_front.jpg'
+       'https://tmanpharmaceutical.com/wp-content/uploads/2024/01/206A1A1.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM medicines WHERE medicine_name='Ibuprofen 200 mg tablets');
 
 INSERT INTO medicines (medicine_name,details,unit_price,image_url)
 SELECT 'Amoxicillin 500 mg capsules','Penicillin antibiotic for bacterial infections',0.20,
-       'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Amoxicillin.JPG/621px-Amoxicillin.JPG'
+       'https://5.imimg.com/data5/SELLER/Default/2025/4/501570426/QD/SO/KM/6695503/amoxicillin-500mg-capsule.png'
 WHERE NOT EXISTS (SELECT 1 FROM medicines WHERE medicine_name='Amoxicillin 500 mg capsules');
 
 -- ===== Prescription (Ibuprofen) =====
@@ -91,14 +91,19 @@ WHERE m.medicine_name='Ibuprofen 200 mg tablets'
 
 -- ===== Medical rights & assignment =====
 INSERT INTO medical_rights (name,details,img_url)
-SELECT 'Universal Coverage Scheme','Government-sponsored healthcare coverage',
-       'https://upload.wikimedia.org/wikipedia/commons/a/ae/HealthInsuranceCard.jpg'
+SELECT 'สำนักงานหลักประกันสุขภาพแห่งชาติ','บัตรทอง 30 บาทรักษาทุกโรค สำหรับประชาชนทั่วไป',
+       'https://songkhla.nhso.go.th/files/Content/1868/134006650103856250_icon-nhso.jpg'
 WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='Universal Coverage Scheme');
 
 INSERT INTO medical_rights (name,details,img_url)
-SELECT 'Social Security Scheme','Employer-based health insurance',
-       'https://upload.wikimedia.org/wikipedia/commons/a/ae/HealthInsuranceCard.jpg'
-WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='Social Security Scheme');
+SELECT 'ประกันสังคม','สำหรับลูกจ้างและนายจ้างที่จ่ายเงินสมทบประกันสังคม',
+       'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Logo_of_the_Social_Security_Office.svg/1943px-Logo_of_the_Social_Security_Office.svg.png'
+WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='ประกันสังคม');
+
+INSERT INTO medical_rights (name,details,img_url)
+SELECT 'กรมบัญชีกลาง','สำหรับข้าราชการ ลูกจ้างประจำ และครอบครัว',
+       'https://agritech.doae.go.th/wp-content/uploads/2022/07/L24-65.png'
+WHERE NOT EXISTS (SELECT 1 FROM medical_rights WHERE name='กรมบัญชีกลาง');
 
 INSERT INTO user_mr (patient_id,mr_id)
 SELECT '0e01abb3-da7e-4aaf-8b10-4834625f19bb', mr.mr_id
@@ -115,7 +120,6 @@ WHERE NOT EXISTS (
 );
 
 -- ===== Order items =====
--- Paracetamol x2
 INSERT INTO order_items (order_id,medicine_id,quantity,unit_price)
 SELECT ord.order_id, med.medicine_id, 2, med.unit_price
 FROM (SELECT order_id
