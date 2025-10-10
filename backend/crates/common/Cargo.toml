@@ -9,3 +9,8 @@ axum = "0.8.4"
 dotenvy = "0.15.7"
 sqlx = "0.8.6"
 thiserror = "2.0.16"
+serde = { version = "1.0", features = ["derive"] }
+time = { version = "0.3", features = ["serde"] }
+uuid = { version = "1", features = ["serde"] }
+jsonwebtoken = "9"
+async-trait = "0.1"

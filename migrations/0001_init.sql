@@ -78,13 +78,22 @@ CREATE TABLE IF NOT EXISTS time_slots (
 );
 
 
-ALTER TABLE time_slots
-  ADD CONSTRAINT time_slots_no_overlap
-  EXCLUDE USING gist (
-    doctor_id WITH =,
-    day_of_weeks WITH =,
-    int4range(start_minute, end_minute) WITH &&
-  );
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint c
+    JOIN pg_class t ON t.oid = c.conrelid
+    WHERE c.conname = 'time_slots_no_overlap' AND t.relname = 'time_slots'
+  ) THEN
+    ALTER TABLE time_slots
+      ADD CONSTRAINT time_slots_no_overlap
+      EXCLUDE USING gist (
+        doctor_id WITH =,
+        day_of_weeks WITH =,
+        int4range(start_minute, end_minute) WITH &&
+      );
+  END IF;
+END$$;
 
 CREATE INDEX IF NOT EXISTS idx_time_slots_doctor_day ON time_slots(doctor_id, day_of_weeks);
 
@@ -167,9 +176,18 @@ CREATE TABLE IF NOT EXISTS orders (
   updated_at        timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TRIGGER trg_orders_updated_at
-BEFORE UPDATE ON orders
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger tg
+    JOIN pg_class c ON c.oid = tg.tgrelid
+    WHERE tg.tgname = 'trg_orders_updated_at' AND c.relname = 'orders'
+  ) THEN
+    CREATE TRIGGER trg_orders_updated_at
+    BEFORE UPDATE ON orders
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+  END IF;
+END$$;
 
 CREATE INDEX IF NOT EXISTS idx_orders_patient ON orders(patient_id);
 
@@ -220,11 +238,29 @@ CREATE TABLE IF NOT EXISTS patient_health_info (
 );
 
 
-CREATE TRIGGER trg_users_updated_at
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger tg
+    JOIN pg_class c ON c.oid = tg.tgrelid
+    WHERE tg.tgname = 'trg_users_updated_at' AND c.relname = 'users'
+  ) THEN
+    CREATE TRIGGER trg_users_updated_at
+    BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+  END IF;
+END$$;
 
-CREATE TRIGGER trg_patient_health_info_updated_at
-BEFORE UPDATE ON patient_health_info
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger tg
+    JOIN pg_class c ON c.oid = tg.tgrelid
+    WHERE tg.tgname = 'trg_patient_health_info_updated_at' AND c.relname = 'patient_health_info'
+  ) THEN
+    CREATE TRIGGER trg_patient_health_info_updated_at
+    BEFORE UPDATE ON patient_health_info
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+  END IF;
+END$$;
 

@@ -8,14 +8,9 @@ use utoipa_swagger_ui::{Config, SwaggerUi};
 #[derive(OpenApi, Default)]
 #[openapi(
     nest(
-        (path = "/appointments", api = appointment_service::ApiDoc),
-        //(path = "/auth", api = auth_service::ApiDoc),
-        //(path = "/catalog", api = catalog_service::ApiDoc),
-        //(path = "/diagnosis", api = diagnosis_service::ApiDoc),
-        //(path = "/prescription", api = prescription_service::ApiDoc),
-        //(path = "/profile", api = profile_service::ApiDoc),
-        //(path = "/order", api = order_service::ApiDoc),
-        //(path = "/shipping", api = shipping_service::ApiDoc)
+        (path = "/api", api = appointment_service::ApiDoc),
+        (path = "/api", api = auth_service::ApiDoc),
+        (path = "/api", api = prescription_service::ApiDoc)
     )
 )]
 pub struct ApiDoc;
