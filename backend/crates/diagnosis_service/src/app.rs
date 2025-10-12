@@ -11,6 +11,7 @@ pub trait DiagnosesRepo: Send + Sync {
         &self,
         rec: UpdateDiagnosesReq,
         diagnosis_id: i32,
+        doctor_id: Uuid,
     ) -> AppResult<()>;
     #[expect(async_fn_in_trait)]
     async fn create_by_patient(
@@ -41,10 +42,10 @@ impl<R: DiagnosesRepo> DiagnosesService<R> {
         &self,
         rec: UpdateDiagnosesReq,
         diagnosis_id: i32,
-       
+        doctor_id: Uuid,
     ) -> AppResult<()> {
         self.repo
-            .update_by_patient(rec, diagnosis_id)
+            .update_by_patient(rec, diagnosis_id, doctor_id)
             .await
     }
     pub async fn create(

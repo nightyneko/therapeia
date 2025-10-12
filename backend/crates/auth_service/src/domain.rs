@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
@@ -78,6 +79,27 @@ pub struct DoctorLoginInput {
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct AccessTokenResp {
     pub access_token: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct DoctorProfileResp {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub phone: String,
+    pub departments: String,
+    pub position: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
+pub struct PatientProfileResp {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub phone: String,
+    #[serde(with = "time::serde::rfc3339")]
+    #[schema(value_type = String, format = DateTime)]
+    pub updated_at: OffsetDateTime,
 }
 
 #[derive(Debug, Clone)]

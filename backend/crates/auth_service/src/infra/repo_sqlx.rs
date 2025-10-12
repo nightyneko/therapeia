@@ -1,8 +1,8 @@
 use crate::{
     app::AuthRepo,
     domain::{
-        DoctorLoginInput, DoctorSignupInput, MedicalRightUpsert, PatientLoginInput,
-        PatientSignupInput,
+        DoctorLoginInput, DoctorProfileResp, DoctorSignupInput, MedicalRightItem,
+        MedicalRightUpsert, PatientLoginInput, PatientProfileResp, PatientSignupInput,
     },
 };
 use common::error::{AppError, AppResult};
@@ -102,6 +102,31 @@ impl AuthRepo for SqlxAuthRepo {
         Ok(())
     }
 
+    async fn user_medical_rights(&self, user_id: Uuid) -> AppResult<Vec<MedicalRightItem>> {
+        let rows = sqlx::query!(
+            r#"
+                SELECT mr.mr_id, mr.name, mr.details, mr.img_url
+                FROM user_mr um
+                JOIN medical_rights mr ON mr.mr_id = um.mr_id
+                WHERE um.patient_id = $1
+                ORDER BY mr.name
+            "#,
+            user_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(rows
+            .into_iter()
+            .map(|row| MedicalRightItem {
+                mr_id: row.mr_id,
+                name: row.name,
+                details: row.details.unwrap_or_default(),
+                image_url: row.img_url.unwrap_or_default(),
+            })
+            .collect())
+    }
+
     async fn create_doctor(&self, input: DoctorSignupInput) -> AppResult<Uuid> {
         let DoctorSignupInput {
             mln,
@@ -163,5 +188,68 @@ impl AuthRepo for SqlxAuthRepo {
             return Err(AppError::Unauthorized);
         }
         Ok(r.user_id)
+    }
+
+    async fn doctor_profile(&self, user_id: Uuid) -> AppResult<DoctorProfileResp> {
+        let rec = sqlx::query!(
+            r#"
+                SELECT
+                    u.first_name,
+                    u.last_name,
+                    COALESCE(u.email, '') AS email,
+                    u.phone,
+                    COALESCE(d.department, '') AS departments,
+                    COALESCE(d.position, '') AS position
+                FROM users u
+                JOIN doctor_profile d ON d.user_id = u.user_id
+                WHERE u.user_id = $1
+            "#,
+            user_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        let Some(rec) = rec else {
+            return Err(AppError::NotFound);
+        };
+
+        Ok(DoctorProfileResp {
+            first_name: rec.first_name,
+            last_name: rec.last_name,
+            email: rec.email.unwrap_or_default(),
+            phone: rec.phone,
+            departments: rec.departments.unwrap_or_default(),
+            position: rec.position.unwrap_or_default(),
+        })
+    }
+
+    async fn patient_profile(&self, user_id: Uuid) -> AppResult<PatientProfileResp> {
+        let rec = sqlx::query!(
+            r#"
+                SELECT
+                    first_name,
+                    last_name,
+                    COALESCE(email, '') AS email,
+                    phone,
+                    updated_at
+                FROM users
+                WHERE user_id = $1
+            "#,
+            user_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        let Some(rec) = rec else {
+            return Err(AppError::NotFound);
+        };
+
+        Ok(PatientProfileResp {
+            first_name: rec.first_name,
+            last_name: rec.last_name,
+            email: rec.email.unwrap_or_default(),
+            phone: rec.phone,
+            updated_at: rec.updated_at,
+        })
     }
 }

@@ -1,6 +1,9 @@
 use super::super::app::DiagnosesRepo;
 use super::super::domain::*;
-use common::error::{AppError, AppResult};
+use common::{
+    auth::{Role, ensure_user_role},
+    error::{AppError, AppResult},
+};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -43,7 +46,29 @@ impl DiagnosesRepo for SqlxDiagnosesRepo {
         .await?;
         Ok(rows)
     }
-    async fn update_by_patient(&self, rec: UpdateDiagnosesReq, diagnosis_id: i32) -> AppResult<()> {
+    async fn update_by_patient(
+        &self,
+        rec: UpdateDiagnosesReq,
+        diagnosis_id: i32,
+        doctor_id: Uuid,
+    ) -> AppResult<()> {
+        ensure_user_role(&self.pool, doctor_id, Role::Doctor).await?;
+
+        let existing = sqlx::query!(
+            r#"SELECT doctor_id FROM diagnoses WHERE diagnosis_id = $1"#,
+            diagnosis_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        let Some(existing) = existing else {
+            return Err(AppError::NotFound);
+        };
+
+        if existing.doctor_id != doctor_id {
+            return Err(AppError::Forbidden);
+        }
+
         let rows = sqlx::query!(
             r#"UPDATE diagnoses SET symptom = $1 WHERE diagnosis_id = $2"#,
             rec.symptom,
@@ -62,6 +87,8 @@ impl DiagnosesRepo for SqlxDiagnosesRepo {
         patient_id: Uuid,
         doctor_id: Uuid,
     ) -> AppResult<()> {
+        ensure_user_role(&self.pool, doctor_id, Role::Doctor).await?;
+
         let appointment = sqlx::query!(
             r#"
                 SELECT a.patient_id, ts.doctor_id

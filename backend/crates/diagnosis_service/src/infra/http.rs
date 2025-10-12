@@ -43,9 +43,7 @@ impl Ctx {
     security(("bearerAuth" = []))
 )]
 async fn history_by_patient(
-    AuthUser {
-        user_id, ..
-    }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
     Path(patient_id): Path<Uuid>,
 ) -> AppResult<Json<Vec<DiagnosesResp>>> {
@@ -69,9 +67,7 @@ async fn history_by_patient(
     security(("bearerAuth" = []))
 )]
 async fn patinet_info(
-    AuthUser {
-        user_id, ..
-    }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
     Path(patient_id): Path<Uuid>,
 ) -> AppResult<Json<Option<PatientInfoResp>>> {
@@ -127,7 +123,7 @@ async fn update(
 ) -> AppResult<StatusCode> {
     ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
 
-    ctx.svc.update(req, diagnosis_id).await?;
+    ctx.svc.update(req, diagnosis_id, user_id).await?;
 
     Ok(StatusCode::NO_CONTENT)
 }
