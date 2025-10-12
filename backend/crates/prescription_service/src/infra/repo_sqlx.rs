@@ -1,7 +1,6 @@
 use super::super::app::PrescriptionRepo;
 use super::super::domain::*;
 use common::error::{AppError, AppResult};
-use db::PgTx;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -16,20 +15,28 @@ impl SqlxPrescriptionRepo {
 }
 
 impl PrescriptionRepo for SqlxPrescriptionRepo {
-    async fn by_id(&self, id: Uuid) -> AppResult<Option<Prescription>> {
-        let rec = sqlx::query_as!(
+    async fn by_id(&self, id: Uuid) -> AppResult<Vec<Prescription>> {
+        let recs = sqlx::query_as!(
             Prescription,
             r#"
-            SELECT a.prescription_id,a.patient_id,a.dosage,a.amount,a.on_going,b.image_url, a.doctor_comment
-            FROM prescriptions a JOIN medicines b 
-            ON a.medicine_id = b.medicine_id
+            SELECT 
+                a.prescription_id,
+                a.patient_id,
+                b.medicine_name,
+                a.dosage,
+                a.amount,
+                a.on_going,
+                a.doctor_comment AS "doctor_comment?",
+                b.image_url AS "image_url?"
+            FROM prescriptions a 
+            JOIN medicines b ON a.medicine_id = b.medicine_id
             WHERE a.patient_id = $1
             "#,
             id
         )
-        .fetch_optional(&self.pool)
+        .fetch_all(&self.pool)
         .await?;
-        Ok(rec)
+        Ok(recs)
     }
 
     async fn search_medicines_by_name(&self, input: &str) -> AppResult<Vec<(i32, String)>> {
@@ -65,15 +72,15 @@ impl PrescriptionRepo for SqlxPrescriptionRepo {
         }))
     }
 
-    async fn create_prescription(
-        &self,
-        patient_id: Uuid,
-        medicine_id: i32,
-        dosage: String,
-        amount: i32,
-        on_going: bool,
-        doctor_comment: Option<String>,
-    ) -> AppResult<i32> {
+    async fn create_prescription(&self, input: CreatePrescriptionInput) -> AppResult<i32> {
+        let CreatePrescriptionInput {
+            patient_id,
+            medicine_id,
+            dosage,
+            amount,
+            on_going,
+            doctor_comment,
+        } = input;
         let rec = sqlx::query!(
             r#"INSERT INTO prescriptions (patient_id, medicine_id, dosage, amount, on_going, doctor_comment)
                VALUES ($1,$2,$3,$4,$5,$6)
@@ -85,16 +92,16 @@ impl PrescriptionRepo for SqlxPrescriptionRepo {
         Ok(rec.prescription_id)
     }
 
-    async fn update_prescription(
-        &self,
-        prescription_id: i32,
-        medicine_id: i32,
-        patient_id: Uuid,
-        dosage: String,
-        amount: i32,
-        on_going: bool,
-        doctor_comment: Option<String>,
-    ) -> AppResult<()> {
+    async fn update_prescription(&self, input: UpdatePrescriptionInput) -> AppResult<()> {
+        let UpdatePrescriptionInput {
+            prescription_id,
+            medicine_id,
+            patient_id,
+            dosage,
+            amount,
+            on_going,
+            doctor_comment,
+        } = input;
         let rows = sqlx::query!(
             r#"UPDATE prescriptions
                SET patient_id=$1, medicine_id=$2, dosage=$3, amount=$4, on_going=$5, doctor_comment=$6

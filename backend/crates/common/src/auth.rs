@@ -1,10 +1,14 @@
 use axum::{extract::FromRequestParts, http::request::Parts};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use time::{Duration, OffsetDateTime};
 use uuid::Uuid;
 
-use crate::{config::AppConfig, error::AppError};
+use crate::{
+    config::AppConfig,
+    error::{AppError, AppResult},
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
@@ -64,7 +68,6 @@ where
 
         let token = auth.strip_prefix("Bearer ").ok_or(AppError::Unauthorized)?;
 
-        
         let keys = parts.extensions.get::<JwtKeys>().ok_or_else(|| {
             AppError::Other(anyhow::anyhow!("missing JwtKeys in request extensions"))
         })?;
@@ -79,4 +82,48 @@ where
 
 pub fn jwt_keys_from_config(cfg: &AppConfig) -> JwtKeys {
     JwtKeys::from_secret(&cfg.jwt_secret)
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Role {
+    Patient,
+    Doctor,
+    Admin,
+}
+
+impl Role {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Role::Patient => "PATIENT",
+            Role::Doctor => "DOCTOR",
+            Role::Admin => "ADMIN",
+        }
+    }
+}
+
+pub async fn user_has_role(pool: &PgPool, user_id: Uuid, role: Role) -> AppResult<bool> {
+    let exists = sqlx::query_scalar::<_, bool>(
+        r#"
+        SELECT EXISTS(
+            SELECT 1
+            FROM user_roles
+            WHERE user_id = $1
+              AND role = $2::role_type
+        )
+        "#,
+    )
+    .bind(user_id)
+    .bind(role.as_str())
+    .fetch_one(pool)
+    .await?;
+
+    Ok(exists)
+}
+
+pub async fn ensure_user_role(pool: &PgPool, user_id: Uuid, role: Role) -> AppResult<()> {
+    if user_has_role(pool, user_id, role).await? {
+        Ok(())
+    } else {
+        Err(AppError::Forbidden)
+    }
 }

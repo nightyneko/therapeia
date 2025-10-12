@@ -1,6 +1,11 @@
-use crate::app::AuthRepo;
+use crate::{
+    app::AuthRepo,
+    domain::{
+        DoctorLoginInput, DoctorSignupInput, MedicalRightUpsert, PatientLoginInput,
+        PatientSignupInput,
+    },
+};
 use common::error::{AppError, AppResult};
-use db::PgTx;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -15,15 +20,15 @@ impl SqlxAuthRepo {
 }
 
 impl AuthRepo for SqlxAuthRepo {
-    async fn create_patient(
-        &self,
-        hn: i32,
-        citizen_id: String,
-        first_name: String,
-        last_name: String,
-        phone: String,
-        password: String,
-    ) -> AppResult<Uuid> {
+    async fn create_patient(&self, input: PatientSignupInput) -> AppResult<Uuid> {
+        let PatientSignupInput {
+            hn,
+            citizen_id,
+            first_name,
+            last_name,
+            phone,
+            password,
+        } = input;
         let mut tx = self.pool.begin().await?;
         let user_id = sqlx::query_scalar!(
             r#"INSERT INTO users (phone, first_name, last_name, citizen_id, password)
@@ -52,12 +57,12 @@ impl AuthRepo for SqlxAuthRepo {
         Ok(user_id)
     }
 
-    async fn login_patient(
-        &self,
-        hn: i32,
-        citizen_id: String,
-        password: String,
-    ) -> AppResult<Uuid> {
+    async fn login_patient(&self, input: PatientLoginInput) -> AppResult<Uuid> {
+        let PatientLoginInput {
+            hn,
+            citizen_id,
+            password,
+        } = input;
         let row = sqlx::query!(
             r#"SELECT u.user_id, u.password
                FROM users u JOIN patient_profile p ON p.user_id = u.user_id
@@ -77,12 +82,15 @@ impl AuthRepo for SqlxAuthRepo {
         Ok(r.user_id)
     }
 
-    async fn upsert_medical_rights(
-        &self,
-        items: Vec<(i32, String, String, String)>,
-    ) -> AppResult<()> {
+    async fn upsert_medical_rights(&self, items: Vec<MedicalRightUpsert>) -> AppResult<()> {
         let mut tx = self.pool.begin().await?;
-        for (mr_id, name, details, image_url) in items {
+        for item in items {
+            let MedicalRightUpsert {
+                mr_id,
+                name,
+                details,
+                image_url,
+            } = item;
             sqlx::query!(
                 r#"INSERT INTO medical_rights (mr_id, name, details, img_url)
                    OVERRIDING SYSTEM VALUE VALUES ($1,$2,$3,$4)
@@ -94,15 +102,15 @@ impl AuthRepo for SqlxAuthRepo {
         Ok(())
     }
 
-    async fn create_doctor(
-        &self,
-        mln: String,
-        citizen_id: String,
-        first_name: String,
-        last_name: String,
-        phone: String,
-        password: String,
-    ) -> AppResult<Uuid> {
+    async fn create_doctor(&self, input: DoctorSignupInput) -> AppResult<Uuid> {
+        let DoctorSignupInput {
+            mln,
+            citizen_id,
+            first_name,
+            last_name,
+            phone,
+            password,
+        } = input;
         let mut tx = self.pool.begin().await?;
         let user_id = sqlx::query_scalar!(
             r#"INSERT INTO users (phone, first_name, last_name, citizen_id, password)
@@ -133,12 +141,12 @@ impl AuthRepo for SqlxAuthRepo {
         Ok(user_id)
     }
 
-    async fn login_doctor(
-        &self,
-        mln: String,
-        citizen_id: String,
-        password: String,
-    ) -> AppResult<Uuid> {
+    async fn login_doctor(&self, input: DoctorLoginInput) -> AppResult<Uuid> {
+        let DoctorLoginInput {
+            mln,
+            citizen_id,
+            password,
+        } = input;
         let row = sqlx::query!(
             r#"SELECT u.user_id, u.password
                FROM users u JOIN doctor_profile d ON d.user_id = u.user_id

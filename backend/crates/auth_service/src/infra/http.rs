@@ -1,15 +1,15 @@
-use axum::{Json, Router, extract::State, routing::post};
+use axum::{Json, Router, extract::State, http::StatusCode, routing::post};
 use common::{
     auth::{JwtKeys, issue_jwt},
     config::AppConfig,
     error::AppResult,
 };
 use sqlx::PgPool;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::OpenApi;
 
 use super::repo_sqlx::SqlxAuthRepo;
 use crate::{
-    app::{AuthRepo, AuthService},
+    app::AuthService,
     domain::{
         AccessTokenResp, DoctorSignupReq, LoginDoctorReq, LoginPatientReq, MedicalRightItem,
         PatientSignupReq,
@@ -40,23 +40,15 @@ impl Ctx {
 async fn create_patient(
     State(ctx): State<Ctx>,
     Json(req): Json<PatientSignupReq>,
-) -> AppResult<Json<AccessTokenResp>> {
-    let user_id = ctx
-        .svc
-        .repo
-        .create_patient(
-            req.hn,
-            req.citizen_id,
-            req.first_name,
-            req.last_name,
-            req.phone,
-            req.password,
-        )
-        .await?;
+) -> AppResult<(StatusCode, Json<AccessTokenResp>)> {
+    let user_id = ctx.svc.create_patient(req.into()).await?;
     let token = issue_jwt(user_id, &ctx.jwt, 60)?;
-    Ok(Json(AccessTokenResp {
-        access_token: token,
-    }))
+    Ok((
+        StatusCode::CREATED,
+        Json(AccessTokenResp {
+            access_token: token,
+        }),
+    ))
 }
 
 #[utoipa::path(
@@ -70,11 +62,7 @@ async fn login_patient(
     State(ctx): State<Ctx>,
     Json(req): Json<LoginPatientReq>,
 ) -> AppResult<Json<AccessTokenResp>> {
-    let user_id = ctx
-        .svc
-        .repo
-        .login_patient(req.hn, req.citizen_id, req.password)
-        .await?;
+    let user_id = ctx.svc.login_patient(req.into()).await?;
     let token = issue_jwt(user_id, &ctx.jwt, 60)?;
     Ok(Json(AccessTokenResp {
         access_token: token,
@@ -91,13 +79,10 @@ async fn login_patient(
 async fn upsert_medical_rights(
     State(ctx): State<Ctx>,
     Json(items): Json<Vec<MedicalRightItem>>,
-) -> AppResult<()> {
-    let rows = items
-        .into_iter()
-        .map(|i| (i.mr_id, i.name, i.details, i.image_url))
-        .collect();
-    ctx.svc.repo.upsert_medical_rights(rows).await?;
-    Ok(())
+) -> AppResult<StatusCode> {
+    let upserts = items.into_iter().map(Into::into).collect();
+    ctx.svc.upsert_medical_rights(upserts).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -110,23 +95,15 @@ async fn upsert_medical_rights(
 async fn create_doctor(
     State(ctx): State<Ctx>,
     Json(req): Json<DoctorSignupReq>,
-) -> AppResult<Json<AccessTokenResp>> {
-    let user_id = ctx
-        .svc
-        .repo
-        .create_doctor(
-            req.mln,
-            req.citizen_id,
-            req.first_name,
-            req.last_name,
-            req.phone,
-            req.password,
-        )
-        .await?;
+) -> AppResult<(StatusCode, Json<AccessTokenResp>)> {
+    let user_id = ctx.svc.create_doctor(req.into()).await?;
     let token = issue_jwt(user_id, &ctx.jwt, 60)?;
-    Ok(Json(AccessTokenResp {
-        access_token: token,
-    }))
+    Ok((
+        StatusCode::CREATED,
+        Json(AccessTokenResp {
+            access_token: token,
+        }),
+    ))
 }
 
 #[utoipa::path(
@@ -140,11 +117,7 @@ async fn login_doctor(
     State(ctx): State<Ctx>,
     Json(req): Json<LoginDoctorReq>,
 ) -> AppResult<Json<AccessTokenResp>> {
-    let user_id = ctx
-        .svc
-        .repo
-        .login_doctor(req.mln, req.citizen_id, req.password)
-        .await?;
+    let user_id = ctx.svc.login_doctor(req.into()).await?;
     let token = issue_jwt(user_id, &ctx.jwt, 60)?;
     Ok(Json(AccessTokenResp {
         access_token: token,

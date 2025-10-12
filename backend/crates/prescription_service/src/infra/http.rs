@@ -1,63 +1,69 @@
 use super::repo_sqlx::SqlxPrescriptionRepo;
 use crate::{
-    app::{PrescriptionRepo, PrescriptionService},
+    app::PrescriptionService,
     domain::{
         CreatePrescriptionReq, MedicineInfo, MedicineSearchItem, Prescription, PrescriptionIdResp,
-        UpdatePrescriptionReq,
+        UpdatePrescriptionInput, UpdatePrescriptionReq,
     },
 };
 use axum::{
     Extension, Json, Router,
     extract::{Path, State},
-    routing::get,
+    http::StatusCode,
+    routing::{get, patch},
 };
-use common::error::{AppError, AppResult};
 use common::{
-    auth::{AuthUser, JwtKeys},
+    auth::{AuthUser, JwtKeys, Role, ensure_user_role},
     config::AppConfig,
+    error::{AppError, AppResult},
 };
 use sqlx::PgPool;
-use utoipa::{OpenApi, ToSchema};
+use utoipa::OpenApi;
 use uuid::Uuid;
-
 
 #[derive(Clone)]
 pub struct Ctx {
-    pool: PgPool,
     svc: PrescriptionService<SqlxPrescriptionRepo>,
+    pool: PgPool,
 }
 
 impl Ctx {
     pub fn new(pool: PgPool) -> Self {
         let svc = PrescriptionService::new(SqlxPrescriptionRepo::new(pool.clone()));
-        Self { pool, svc }
+        Self { svc, pool }
     }
 }
 
 #[utoipa::path(
     get,
-    path = "/prescription/{id}",
+    path = "/prescriptions/patient/{patient_id}",
+    params(("patient_id" = Uuid, Path)),
     responses(
-        (status = 200, description = "Prescription found", body = Prescription),
-        (status = 404, description = "Appointment not found"),
+        (status = 200, description = "Prescriptions found", body = [Prescription]),
+        (status = 404, description = "Prescription not found"),
     ),
-    tag = "prescriptions"
+    tag = "prescriptions",
+    security(("bearerAuth" = []))
 )]
 async fn get_by_user_id(
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
-    Path(id): Path<Uuid>,
-) -> AppResult<Json<Prescription>> {
-    let Some(a) = ctx.svc.repo.by_id(id).await? else {
+    Path(patient_id): Path<Uuid>,
+) -> AppResult<Json<Vec<Prescription>>> {
+    ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
+
+    let rows = ctx.svc.prescription_by_patient(patient_id).await?;
+    if rows.is_empty() {
         return Err(AppError::NotFound);
-    };
-    Ok(Json(a))
+    }
+    Ok(Json(rows))
 }
 
 #[utoipa::path(
     get,
     path = "/prescriptions",
     responses(
-        (status = 200, description = "Prescription found", body = Prescription),
+        (status = 200, description = "Prescriptions found", body = [Prescription]),
         (status = 404, description = "Prescription not found"),
     ),
     tag = "prescriptions",
@@ -66,12 +72,12 @@ async fn get_by_user_id(
 async fn get_by_user(
     AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
-) -> AppResult<Json<Prescription>> {
-    println!("{}", user_id.to_string());
-    let Some(a) = ctx.svc.repo.by_id(user_id).await? else {
+) -> AppResult<Json<Vec<Prescription>>> {
+    let rows = ctx.svc.prescription_by_patient(user_id).await?;
+    if rows.is_empty() {
         return Err(AppError::NotFound);
-    };
-    Ok(Json(a))
+    }
+    Ok(Json(rows))
 }
 
 #[utoipa::path(
@@ -83,12 +89,13 @@ async fn get_by_user(
     security(("bearerAuth" = []))
 )]
 async fn get_medicine_info(
-    AuthUser { .. }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
     Path(medicine_id): Path<i32>,
 ) -> AppResult<Json<MedicineInfo>> {
-    let Some((medicine_id, medicine_name, img_link)) =
-        ctx.svc.repo.get_medicine_info(medicine_id).await?
+    ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
+
+    let Some((medicine_id, medicine_name, img_link)) = ctx.svc.medicine_info(medicine_id).await?
     else {
         return Err(AppError::NotFound);
     };
@@ -108,98 +115,60 @@ async fn get_medicine_info(
     security(("bearerAuth" = []))
 )]
 async fn create_prescription(
-    AuthUser { .. }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
     Json(req): Json<CreatePrescriptionReq>,
-) -> AppResult<Json<PrescriptionIdResp>> {
-    let id = ctx
-        .svc
-        .repo
-        .create_prescription(
-            req.patient_id,
-            req.medicines_id,
-            req.dosage,
-            req.amount,
-            req.on_going,
-            req.doctor_comment,
-        )
-        .await?;
-    Ok(Json(PrescriptionIdResp {
-        prescription_id: id,
-    }))
+) -> AppResult<(StatusCode, Json<PrescriptionIdResp>)> {
+    ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
+
+    let id = ctx.svc.create_prescription(req.into()).await?;
+    Ok((
+        StatusCode::CREATED,
+        Json(PrescriptionIdResp {
+            prescription_id: id,
+        }),
+    ))
 }
-
-
 
 #[utoipa::path(
     patch,
-    path = "/prescriptions/{prescriptions_id}",
+    path = "/prescriptions/{prescription_id}",
     request_body = UpdatePrescriptionReq,
-    params(("prescriptions_id" = i32, Path)),
+    params(("prescription_id" = i32, Path)),
     responses((status = 204, description = "Updated")),
     tag = "prescriptions",
     security(("bearerAuth" = []))
 )]
 async fn update_prescription(
-    AuthUser { .. }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
-    Path(prescriptions_id): Path<i32>,
+    Path(prescription_id): Path<i32>,
     Json(req): Json<UpdatePrescriptionReq>,
-) -> AppResult<()> {
-    ctx.svc
-        .repo
-        .update_prescription(
-            prescriptions_id,
-            req.medicines_id,
-            req.patient_id,
-            req.dosage,
-            req.amount,
-            req.on_going,
-            req.doctor_comment,
-        )
-        .await?;
-    Ok(())
+) -> AppResult<StatusCode> {
+    ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
+
+    let input = UpdatePrescriptionInput::from_request(prescription_id, req);
+    ctx.svc.update_prescription(input).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
     delete,
-    path = "/prescriptions/{prescriptions_id}",
-    params(("prescriptions_id" = i32, Path)),
+    path = "/prescriptions/{prescription_id}",
+    params(("prescription_id" = i32, Path)),
     responses((status = 204, description = "Deleted")),
     tag = "prescriptions",
     security(("bearerAuth" = []))
 )]
 async fn delete_prescription(
-    AuthUser { .. }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
-    Path(prescriptions_id): Path<i32>,
-) -> AppResult<()> {
-    ctx.svc.repo.delete_prescription(prescriptions_id).await?;
-    Ok(())
-}
+    Path(prescription_id): Path<i32>,
+) -> AppResult<StatusCode> {
+    ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
 
-pub fn router(pool: PgPool) -> Router {
-    let ctx = Ctx::new(pool);
-    let cfg = AppConfig::from_env();
-    let jwt_keys = JwtKeys::from_secret(&cfg.jwt_secret);
-
-    Router::new()
-        // Collection: list & create
-        .route("/prescriptions", get(get_by_user).post(create_prescription))
-        .route(
-            "/prescriptions/{id}",
-            get(get_by_user_id)
-                .patch(update_prescription)
-                .delete(delete_prescription),
-        )
-        // Sub-resources / utilities
-        .route(
-            "/prescriptions/medicines/{medicine_id}",
-            get(get_medicine_info),
-        )
-        .route("/prescriptions/search/{input}", get(search_medicines))
-        .with_state(ctx)
-        .layer(Extension(jwt_keys))
+    ctx.svc.delete_prescription(prescription_id).await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 
 #[utoipa::path(
@@ -213,11 +182,13 @@ pub fn router(pool: PgPool) -> Router {
     security(("bearerAuth" = []))
 )]
 async fn search_medicines(
-    AuthUser { .. }: AuthUser,
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
     Path(input): Path<String>,
 ) -> AppResult<Json<Vec<MedicineSearchItem>>> {
-    let rows = ctx.svc.repo.search_medicines_by_name(&input).await?;
+    ensure_user_role(&ctx.pool, user_id, Role::Doctor).await?;
+
+    let rows = ctx.svc.search_medicines(&input).await?;
     Ok(Json(
         rows.into_iter()
             .map(|(medicine_id, medicine_name)| MedicineSearchItem {
@@ -231,9 +202,9 @@ async fn search_medicines(
 #[derive(OpenApi, Default)]
 #[openapi(
     paths(get_by_user_id, get_by_user, search_medicines, get_medicine_info, create_prescription, update_prescription, delete_prescription),
-    components(schemas(MedicineSearchItem, MedicineInfo, CreatePrescriptionReq, UpdatePrescriptionReq, PrescriptionIdResp)),
+    components(schemas(Prescription, MedicineSearchItem, MedicineInfo, CreatePrescriptionReq, UpdatePrescriptionReq, PrescriptionIdResp)),
     modifiers(&SecurityAddon),
-    tags((name = "prescription", description = "Prescription APIs"))
+    tags((name = "prescriptions", description = "Prescription APIs"))
 )]
 pub struct ApiDoc;
 
@@ -250,4 +221,27 @@ impl utoipa::Modify for SecurityAddon {
             SecurityScheme::Http(Http::new(HttpAuthScheme::Bearer)),
         );
     }
+}
+
+pub fn router(pool: PgPool) -> Router {
+    let ctx = Ctx::new(pool);
+    let cfg = AppConfig::from_env();
+    let jwt_keys = JwtKeys::from_secret(&cfg.jwt_secret);
+
+    Router::new()
+        // Collection: list & create
+        .route("/prescriptions", get(get_by_user).post(create_prescription))
+        .route("/prescriptions/patient/{patient_id}", get(get_by_user_id))
+        .route(
+            "/prescriptions/{prescription_id}",
+            patch(update_prescription).delete(delete_prescription),
+        )
+        // Sub-resources / utilities
+        .route(
+            "/prescriptions/medicines/{medicine_id}",
+            get(get_medicine_info),
+        )
+        .route("/prescriptions/search/{input}", get(search_medicines))
+        .with_state(ctx)
+        .layer(Extension(jwt_keys))
 }

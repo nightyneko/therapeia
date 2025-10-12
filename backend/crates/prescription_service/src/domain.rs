@@ -7,6 +7,7 @@ use uuid::Uuid;
 pub struct Prescription {
     pub prescription_id: i32,
     pub patient_id: Uuid,
+    pub medicine_name: String,
     pub dosage: String,
     pub amount: i32,
     pub on_going: bool,
@@ -23,7 +24,6 @@ pub struct Medicines {
     pub image_url: String,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct MedicineSearchItem {
     pub medicine_id: i32,
@@ -37,10 +37,9 @@ pub struct MedicineInfo {
     pub img_link: String,
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct CreatePrescriptionReq {
-    pub medicines_id: i32,
+    pub medicine_id: i32,
     pub patient_id: Uuid,
     pub doctor_comment: Option<String>,
     pub dosage: String,
@@ -48,10 +47,19 @@ pub struct CreatePrescriptionReq {
     pub on_going: bool,
 }
 
+#[derive(Debug, Clone)]
+pub struct CreatePrescriptionInput {
+    pub medicine_id: i32,
+    pub patient_id: Uuid,
+    pub doctor_comment: Option<String>,
+    pub dosage: String,
+    pub amount: i32,
+    pub on_going: bool,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct UpdatePrescriptionReq {
-    pub medicines_id: i32,
+    pub medicine_id: i32,
     pub patient_id: Uuid,
     pub doctor_comment: Option<String>,
     pub dosage: String,
@@ -59,8 +67,45 @@ pub struct UpdatePrescriptionReq {
     pub on_going: bool,
 }
 
+#[derive(Debug, Clone)]
+pub struct UpdatePrescriptionInput {
+    pub prescription_id: i32,
+    pub medicine_id: i32,
+    pub patient_id: Uuid,
+    pub doctor_comment: Option<String>,
+    pub dosage: String,
+    pub amount: i32,
+    pub on_going: bool,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 pub struct PrescriptionIdResp {
     pub prescription_id: i32,
+}
+
+impl From<CreatePrescriptionReq> for CreatePrescriptionInput {
+    fn from(value: CreatePrescriptionReq) -> Self {
+        Self {
+            medicine_id: value.medicine_id,
+            patient_id: value.patient_id,
+            doctor_comment: value.doctor_comment,
+            dosage: value.dosage,
+            amount: value.amount,
+            on_going: value.on_going,
+        }
+    }
+}
+
+impl UpdatePrescriptionInput {
+    pub fn from_request(prescription_id: i32, payload: UpdatePrescriptionReq) -> Self {
+        Self {
+            prescription_id,
+            medicine_id: payload.medicine_id,
+            patient_id: payload.patient_id,
+            doctor_comment: payload.doctor_comment,
+            dosage: payload.dosage,
+            amount: payload.amount,
+            on_going: payload.on_going,
+        }
+    }
 }
