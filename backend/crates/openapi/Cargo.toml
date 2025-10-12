@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 appointment_service = { version = "0.1.0", path = "../appointment_service" }
 auth_service = { version = "0.1.0", path = "../auth_service" }
+diagnosis_service = { version = "0.1.0", path = "../diagnosis_service" }
 prescription_service = { version = "0.1.0", path = "../prescription_service" }
 axum = "0.8.4"
 utoipa = "5.4.0"

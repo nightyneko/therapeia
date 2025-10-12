@@ -47,14 +47,12 @@ dependencies = [
  "auth_service",
  "axum",
  "axum-server",
- "catalog_service",
  "common",
  "db",
  "diagnosis_service",
  "openapi",
  "order_service",
  "prescription_service",
- "profile_service",
  "shipping_service",
  "tokio",
  "tower-http",
@@ -264,10 +262,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
-name = "catalog_service"
-version = "0.1.0"
-
-[[package]]
 name = "cc"
 version = "1.2.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -415,6 +409,18 @@ dependencies = [
 [[package]]
 name = "diagnosis_service"
 version = "0.1.0"
+dependencies = [
+ "axum",
+ "common",
+ "db",
+ "dotenvy",
+ "jsonwebtoken",
+ "serde",
+ "sqlx",
+ "time",
+ "utoipa",
+ "uuid",
+]
 
 [[package]]
 name = "digest"
@@ -1116,10 +1122,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "notification_service"
-version = "0.1.0"
-
-[[package]]
 name = "nu-ansi-term"
 version = "0.50.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1213,6 +1215,7 @@ dependencies = [
  "appointment_service",
  "auth_service",
  "axum",
+ "diagnosis_service",
  "prescription_service",
  "utoipa",
  "utoipa-rapidoc",
@@ -1366,10 +1369,6 @@ checksum = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de"
 dependencies = [
  "unicode-ident",
 ]
-
-[[package]]
-name = "profile_service"
-version = "0.1.0"
 
 [[package]]
 name = "quote"

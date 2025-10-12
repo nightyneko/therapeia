@@ -10,6 +10,7 @@ use utoipa_swagger_ui::{Config, SwaggerUi};
     nest(
         (path = "/api", api = appointment_service::ApiDoc),
         (path = "/api", api = auth_service::ApiDoc),
+        (path = "/api", api = diagnosis_service::ApiDoc),
         (path = "/api", api = prescription_service::ApiDoc)
     )
 )]
