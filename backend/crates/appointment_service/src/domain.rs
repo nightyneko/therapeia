@@ -19,6 +19,8 @@ pub struct Appointment {
     pub timeslot_id: i32,
     pub date: Date,
     pub status: AppointmentStatus,
+    #[serde(with = "time::serde::rfc3339")]
+    #[schema(value_type = String, format = DateTime, example = "2025-10-10T12:34:56Z")]
     pub created_at: time::OffsetDateTime,
 }
 

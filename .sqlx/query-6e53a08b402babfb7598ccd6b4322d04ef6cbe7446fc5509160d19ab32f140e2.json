@@ -1,0 +1,29 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT u.user_id, u.password\n               FROM users u JOIN doctor_profile d ON d.user_id = u.user_id\n               WHERE d.mln=$1 AND u.citizen_id=$2",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "password",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "6e53a08b402babfb7598ccd6b4322d04ef6cbe7446fc5509160d19ab32f140e2"
+}

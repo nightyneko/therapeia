@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT medicine_id, medicine_name FROM medicines WHERE medicine_name ILIKE $1 ORDER BY medicine_name LIMIT 50",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "medicine_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "medicine_name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "7775f88e5da903eeba0047ed1475f4ded21d55fee084caa88ba0b978683e1c2f"
+}

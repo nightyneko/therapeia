@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO prescriptions (patient_id, medicine_id, dosage, amount, on_going, doctor_comment)\n               VALUES ($1,$2,$3,$4,$5,$6)\n               RETURNING prescription_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "prescription_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Text",
+        "Int4",
+        "Bool",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9889cca25be65c4b2d2f1a528a95de04f8c64d9ed94c437266ac6398bfc1733f"
+}

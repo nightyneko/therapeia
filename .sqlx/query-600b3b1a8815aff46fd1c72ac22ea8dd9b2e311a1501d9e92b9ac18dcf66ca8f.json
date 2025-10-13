@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE diagnoses SET symptom = $1 WHERE diagnosis_id = $2",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "600b3b1a8815aff46fd1c72ac22ea8dd9b2e311a1501d9e92b9ac18dcf66ca8f"
+}
