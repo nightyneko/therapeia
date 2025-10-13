@@ -36,7 +36,7 @@ impl Ctx {
 
 #[utoipa::path(
     get,
-    path = "/prescriptions/patient/{patient_id}",
+    path = "/patient/{patient_id}",
     params(("patient_id" = Uuid, Path)),
     responses(
         (status = 200, description = "Prescriptions found", body = [Prescription]),
@@ -61,7 +61,7 @@ async fn get_by_user_id(
 
 #[utoipa::path(
     get,
-    path = "/prescriptions",
+    path = "/",
     responses(
         (status = 200, description = "Prescriptions found", body = [Prescription]),
         (status = 404, description = "Prescription not found"),
@@ -82,7 +82,7 @@ async fn get_by_user(
 
 #[utoipa::path(
     get,
-    path = "/prescriptions/medicines/{medicine_id}",
+    path = "/medicines/{medicine_id}",
     params(("medicine_id" = i32, Path)),
     responses((status = 200, description = "Medicine info", body = MedicineInfo)),
     tag = "prescriptions",
@@ -108,7 +108,7 @@ async fn get_medicine_info(
 
 #[utoipa::path(
     post,
-    path = "/prescriptions",
+    path = "/",
     request_body = CreatePrescriptionReq,
     responses((status = 201, description = "Created", body = PrescriptionIdResp)),
     tag = "prescriptions",
@@ -132,7 +132,7 @@ async fn create_prescription(
 
 #[utoipa::path(
     patch,
-    path = "/prescriptions/{prescription_id}",
+    path = "/{prescription_id}",
     request_body = UpdatePrescriptionReq,
     params(("prescription_id" = i32, Path)),
     responses((status = 204, description = "Updated")),
@@ -154,7 +154,7 @@ async fn update_prescription(
 
 #[utoipa::path(
     delete,
-    path = "/prescriptions/{prescription_id}",
+    path = "/{prescription_id}",
     params(("prescription_id" = i32, Path)),
     responses((status = 204, description = "Deleted")),
     tag = "prescriptions",
@@ -173,7 +173,7 @@ async fn delete_prescription(
 
 #[utoipa::path(
     get,
-    path = "/prescriptions/search/{input}",
+    path = "/search/{input}",
     params(("input" = String, Path, description = "Search term")),
     responses(
         (status = 200, description = "Search results", body = [MedicineSearchItem])

@@ -33,7 +33,7 @@ impl Ctx {
 
 #[utoipa::path(
     get,
-    path = "/diagnoses/{patient_id}",
+    path = "/{patient_id}",
     params(("patient_id" = Uuid, Path)),
     responses(
         (status = 200, description = "Diagnoses History", body = Vec<DiagnosesResp>),
@@ -57,7 +57,7 @@ async fn history_by_patient(
 
 #[utoipa::path(
     get,
-    path = "/diagnoses/{patient_id}/info",
+    path = "/{patient_id}/info",
     params(("patient_id" = Uuid, Path)),
     responses(
         (status = 200, description = "Patient information", body = Option<PatientInfoResp>),
@@ -80,7 +80,7 @@ async fn patinet_info(
 }
 #[utoipa::path(
     post,
-    path = "/diagnoses/{patient_id}",
+    path = "/{patient_id}",
     params(("patient_id" = Uuid, Path)),
     request_body = DiagnosesReq,
     responses(
@@ -105,7 +105,7 @@ async fn create(
 
 #[utoipa::path(
     patch,
-    path = "/diagnosis/{diagnosis_id}",
+    path = "/{diagnosis_id}",
     params(("diagnosis_id" = i32, Path)),
     request_body = UpdateDiagnosesReq,
     responses(

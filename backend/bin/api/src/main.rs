@@ -34,13 +34,10 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .nest(
             "/api",
-            appt.merge(auth)
-                .merge(diag)
-                .merge(rx)
-                //.merge(profiles)
-                //.merge(catalog)
-                //.merge(order)
-                //.merge(ship),
+            appt.merge(auth).merge(diag).merge(rx), //.merge(profiles)
+                                                    //.merge(catalog)
+                                                    //.merge(order)
+                                                    //.merge(ship),
         )
         .nest("/docs", openapi)
         .layer(TraceLayer::new_for_http())

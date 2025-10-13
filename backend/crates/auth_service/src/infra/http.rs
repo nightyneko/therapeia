@@ -41,7 +41,7 @@ impl Ctx {
 
 #[utoipa::path(
     post,
-    path = "/users/patients",
+    path = "/patients",
     request_body = PatientSignupReq,
     responses((status = 201, description = "Created", body = AccessTokenResp)),
     tag = "auth"
@@ -62,7 +62,7 @@ async fn create_patient(
 
 #[utoipa::path(
     post,
-    path = "/users/login/patients",
+    path = "/login/patients",
     request_body = LoginPatientReq,
     responses((status = 200, description = "OK", body = AccessTokenResp)),
     tag = "auth"
@@ -80,7 +80,7 @@ async fn login_patient(
 
 #[utoipa::path(
     post,
-    path = "/users/medical_rights",
+    path = "/medical_rights",
     request_body = [MedicalRightItem],
     responses((status = 204, description = "Upserted")),
     tag = "auth"
@@ -96,7 +96,7 @@ async fn upsert_medical_rights(
 
 #[utoipa::path(
     get,
-    path = "/users/medical_rights",
+    path = "/medical_rights",
     responses((status = 200, description = "User medical rights", body = [MedicalRightItem])),
     tag = "auth",
     security(("bearerAuth" = []))
@@ -113,7 +113,7 @@ async fn get_my_medical_rights(
 
 #[utoipa::path(
     post,
-    path = "/users/doctors",
+    path = "/doctors",
     request_body = DoctorSignupReq,
     responses((status = 201, description = "Created", body = AccessTokenResp)),
     tag = "auth"
@@ -134,7 +134,7 @@ async fn create_doctor(
 
 #[utoipa::path(
     post,
-    path = "/users/login/doctors",
+    path = "/login/doctors",
     request_body = LoginDoctorReq,
     responses((status = 200, description = "OK", body = AccessTokenResp)),
     tag = "auth"
@@ -152,7 +152,7 @@ async fn login_doctor(
 
 #[utoipa::path(
     post,
-    path = "/users/refresh",
+    path = "/refresh",
     responses((status = 200, description = "Refreshed access token", body = AccessTokenResp)),
     tag = "auth",
     security(("bearerAuth" = []))
@@ -169,7 +169,7 @@ async fn refresh_access_token(
 
 #[utoipa::path(
     get,
-    path = "/users/doctor/profiles",
+    path = "/doctor/profiles",
     responses((status = 200, description = "Doctor profile", body = DoctorProfileResp)),
     tag = "auth",
     security(("bearerAuth" = []))
@@ -186,7 +186,7 @@ async fn get_doctor_profile(
 
 #[utoipa::path(
     get,
-    path = "/users/patient/profiles",
+    path = "/patient/profiles",
     responses((status = 200, description = "Patient profile", body = PatientProfileResp)),
     tag = "auth",
     security(("bearerAuth" = []))
