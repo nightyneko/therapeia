@@ -34,8 +34,10 @@ impl JwtKeys {
 pub fn issue_jwt(user_id: Uuid, keys: &JwtKeys, ttl_minutes: i64) -> Result<String, AppError> {
     let exp = (OffsetDateTime::now_utc() + Duration::minutes(ttl_minutes)).unix_timestamp();
     let claims = Claims { sub: user_id, exp };
-    let mut header = Header::default();
-    header.alg = Algorithm::HS256;
+    let header = Header {
+        alg: Algorithm::HS256,
+        ..Default::default()
+    };
     encode(&header, &claims, &keys.enc).map_err(|e| AppError::Other(e.into()))
 }
 
