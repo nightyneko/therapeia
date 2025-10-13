@@ -61,7 +61,7 @@ async fn get_by_user_id(
 
 #[utoipa::path(
     get,
-    path = "/",
+    path = "",
     responses(
         (status = 200, description = "Prescriptions found", body = [Prescription]),
         (status = 404, description = "Prescription not found"),
@@ -108,7 +108,7 @@ async fn get_medicine_info(
 
 #[utoipa::path(
     post,
-    path = "/",
+    path = "",
     request_body = CreatePrescriptionReq,
     responses((status = 201, description = "Created", body = PrescriptionIdResp)),
     tag = "prescriptions",

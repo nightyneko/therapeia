@@ -80,7 +80,7 @@ async fn login_patient(
 
 #[utoipa::path(
     post,
-    path = "/medical_rights",
+    path = "/medical-rights",
     request_body = [MedicalRightItem],
     responses((status = 204, description = "Upserted")),
     tag = "auth"
@@ -96,7 +96,7 @@ async fn upsert_medical_rights(
 
 #[utoipa::path(
     get,
-    path = "/medical_rights",
+    path = "/medical-rights",
     responses((status = 200, description = "User medical rights", body = [MedicalRightItem])),
     tag = "auth",
     security(("bearerAuth" = []))
@@ -209,11 +209,11 @@ pub fn router(pool: PgPool) -> Router {
         .route("/users/patients", post(create_patient))
         .route("/users/login/patients", post(login_patient))
         .route("/users/patient/profiles", get(get_patient_profile))
-        .route("/users/me/medical_rights", get(get_my_medical_rights))
+        .route("/users/me/medical-rights", get(get_my_medical_rights))
         .route("/users/doctors", post(create_doctor))
         .route("/users/login/doctors", post(login_doctor))
         .route("/users/doctor/profiles", get(get_doctor_profile))
-        .route("/users/medical_rights", post(upsert_medical_rights))
+        .route("/users/medical-rights", post(upsert_medical_rights))
         .route("/users/refresh", post(refresh_access_token))
         .with_state(ctx)
         .layer(Extension(jwt))
