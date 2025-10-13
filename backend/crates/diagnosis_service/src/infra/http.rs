@@ -33,7 +33,7 @@ impl Ctx {
 
 #[utoipa::path(
     get,
-    path = "/{patient_id}",
+    path = "/by-patient/{patient_id}",
     params(("patient_id" = Uuid, Path)),
     responses(
         (status = 200, description = "Diagnoses History", body = Vec<DiagnosesResp>),
@@ -57,7 +57,7 @@ async fn history_by_patient(
 
 #[utoipa::path(
     get,
-    path = "/{patient_id}/info",
+    path = "/by-patient/{patient_id}/info",
     params(("patient_id" = Uuid, Path)),
     responses(
         (status = 200, description = "Patient information", body = Option<PatientInfoResp>),
@@ -80,7 +80,7 @@ async fn patinet_info(
 }
 #[utoipa::path(
     post,
-    path = "/{patient_id}",
+    path = "/by-patient/{patient_id}",
     params(("patient_id" = Uuid, Path)),
     request_body = DiagnosesReq,
     responses(
@@ -134,11 +134,11 @@ pub fn router(pool: PgPool) -> Router {
     let jwt_keys = JwtKeys::from_secret(&cfg.jwt_secret);
     Router::new()
         .route(
-            "/diagnoses/{patient_id}",
+            "/diagnoses/by-patient/{patient_id}",
             get(history_by_patient).post(create),
         )
         .route("/diagnosis/{diagnosis_id}", patch(update))
-        .route("/diagnoses/{patient_id}/info", get(patinet_info))
+        .route("/diagnoses/by-patient/{patient_id}/info", get(patinet_info))
         .with_state(ctx)
         .layer(Extension(jwt_keys))
 }
