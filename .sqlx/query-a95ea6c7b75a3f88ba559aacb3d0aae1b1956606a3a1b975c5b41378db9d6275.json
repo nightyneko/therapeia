@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT a.patient_id, ts.doctor_id\n                FROM appointments a\n                JOIN time_slots ts ON ts.timeslot_id = a.timeslot_id\n                WHERE a.appointment_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "patient_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "doctor_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "a95ea6c7b75a3f88ba559aacb3d0aae1b1956606a3a1b975c5b41378db9d6275"
+}

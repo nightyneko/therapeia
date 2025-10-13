@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO patient_profile (user_id, hn) VALUES ($1,$2)\n               ON CONFLICT (user_id) DO UPDATE SET hn = EXCLUDED.hn",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "c675637c632ce74244f6fb52af8413a4b625b54526b60068d81bebb7872c05f1"
+}

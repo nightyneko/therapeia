@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT mr.mr_id, mr.name, mr.details, mr.img_url\n                FROM user_mr um\n                JOIN medical_rights mr ON mr.mr_id = um.mr_id\n                WHERE um.patient_id = $1\n                ORDER BY mr.name\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "mr_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "details",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "img_url",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "74a9e9fbc8e89896177b395e867ae421020cba38cdc9998b074e61dd65938e99"
+}

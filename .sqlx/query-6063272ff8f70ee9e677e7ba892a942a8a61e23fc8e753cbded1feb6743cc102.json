@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT medicine_id, medicine_name, image_url FROM medicines WHERE medicine_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "medicine_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "medicine_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "image_url",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "6063272ff8f70ee9e677e7ba892a942a8a61e23fc8e753cbded1feb6743cc102"
+}
