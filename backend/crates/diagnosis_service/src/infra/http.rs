@@ -60,7 +60,7 @@ async fn history_by_patient(
     path = "/diagnoses/{patient_id}/info",
     params(("patient_id" = Uuid, Path)),
     responses(
-        (status = 200, description = "Patinet infomation", body = Option<PatientInfoResp>),
+        (status = 200, description = "Patient information", body = Option<PatientInfoResp>),
         (status = 404, description = "not found"),
     ),
     tag = "diagnoses",
