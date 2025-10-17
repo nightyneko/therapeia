@@ -288,17 +288,23 @@ impl MapProvider {
             .address_coordinates()
             .ok_or_else(|| AppError::BadRequest("missing address coordinates".into()))?;
 
-        // We let Geoapify auto-fit the view based on markers to avoid invalid view params
+        // Compute map center and zoom explicitly to avoid Geoapify 400 errors
 
         // Marker Icon API v2 format; markers are provided as repeated query params
         let shipping_marker = format!(
-            "lonlat:{:.6},{:.6};type:material;color:%23ff4d4f;size:64",
+            "lonlat:{:.6},{:.6};type:material;color:#ff4d4f;size:64",
             ship_lon, ship_lat
         );
         let address_marker = format!(
-            "lonlat:{:.6},{:.6};type:material;color:%232196f3;size:64",
+            "lonlat:{:.6},{:.6};type:material;color:#2196f3;size:64",
             addr_lon, addr_lat
         );
+
+        // Determine center & zoom based on points distance
+        let center_lat = (ship_lat + addr_lat) / 2.0;
+        let center_lon = (ship_lon + addr_lon) / 2.0;
+        let distance_km = haversine_distance_km(ship_lat, ship_lon, addr_lat, addr_lon);
+        let zoom = zoom_for_distance(distance_km);
 
         let mut params = vec![
             ("style".to_string(), "osm-bright".to_string()),
@@ -306,6 +312,11 @@ impl MapProvider {
             ("height".to_string(), "480".to_string()),
             ("format".to_string(), "png".to_string()),
             ("apiKey".to_string(), self.api_key.clone()),
+            (
+                "center".to_string(),
+                format!("lonlat:{:.6},{:.6}", center_lon, center_lat),
+            ),
+            ("zoom".to_string(), zoom.to_string()),
         ];
         params.push(("marker".to_string(), shipping_marker));
         params.push(("marker".to_string(), address_marker));
@@ -315,7 +326,8 @@ impl MapProvider {
             params.iter().map(|(k, v)| (k.as_str(), v.as_str())),
         )
         .map_err(|e| AppError::Other(e.into()))?;
-        tracing::debug!("geoapify static map url={}", url.as_str());
+        let redacted_url = url.as_str().replace(&self.api_key, "REDACTED");
+        tracing::debug!("geoapify static map url={}", redacted_url);
 
         let response = self
             .client
