@@ -8,6 +8,8 @@ appointment_service = { version = "0.1.0", path = "../appointment_service" }
 auth_service = { version = "0.1.0", path = "../auth_service" }
 diagnosis_service = { version = "0.1.0", path = "../diagnosis_service" }
 prescription_service = { version = "0.1.0", path = "../prescription_service" }
+order_service = { version = "0.1.0", path = "../order_service" }
+shipping_service = { version = "0.1.0", path = "../shipping_service" }
 axum = "0.8.6"
 utoipa = "5.4.0"
 utoipa-rapidoc = { version = "6.0.0", features = ["axum"] }

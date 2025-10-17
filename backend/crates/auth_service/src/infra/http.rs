@@ -83,12 +83,15 @@ async fn login_patient(
     path = "/medical-rights",
     request_body = [MedicalRightItem],
     responses((status = 204, description = "Upserted")),
-    tag = "auth"
+    tag = "auth",
+    security(("bearerAuth" = []))
 )]
 async fn upsert_medical_rights(
+    AuthUser { user_id, .. }: AuthUser,
     State(ctx): State<Ctx>,
     Json(items): Json<Vec<MedicalRightItem>>,
 ) -> AppResult<StatusCode> {
+    ensure_user_role(&ctx.pool, user_id, Role::Admin).await?;
     let upserts = items.into_iter().map(Into::into).collect();
     ctx.svc.upsert_medical_rights(upserts).await?;
     Ok(StatusCode::NO_CONTENT)

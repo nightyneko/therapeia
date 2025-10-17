@@ -11,12 +11,10 @@ use utoipa_swagger_ui::{Config, SwaggerUi};
     nest(
         (path = "/appointments", api = appointment_service::ApiDoc),
         (path = "/users", api = auth_service::ApiDoc),
-        //(path = "/catalog", api = catalog_service::ApiDoc),
         (path = "/diagnoses", api = diagnosis_service::ApiDoc),
         (path = "/prescriptions", api = prescription_service::ApiDoc),
-        //(path = "/profile", api = profile_service::ApiDoc),
-        //(path = "/order", api = order_service::ApiDoc),
-        //(path = "/shipping", api = shipping_service::ApiDoc)
+        (path = "/", api = order_service::ApiDoc),
+        (path = "/shipping", api = shipping_service::ApiDoc)
     )
 )]
 pub struct ApiDoc;

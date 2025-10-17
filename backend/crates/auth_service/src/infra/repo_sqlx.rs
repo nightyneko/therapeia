@@ -5,7 +5,10 @@ use crate::{
         MedicalRightUpsert, PatientLoginInput, PatientProfileResp, PatientSignupInput,
     },
 };
-use common::error::{AppError, AppResult};
+use common::{
+    error::{AppError, AppResult},
+    password::{hash_password, verify_password},
+};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -29,6 +32,7 @@ impl AuthRepo for SqlxAuthRepo {
             phone,
             password,
         } = input;
+        let password_hash = hash_password(&password)?;
         let mut tx = self.pool.begin().await?;
         let user_id = sqlx::query_scalar!(
             r#"INSERT INTO users (phone, first_name, last_name, citizen_id, password)
@@ -37,7 +41,7 @@ impl AuthRepo for SqlxAuthRepo {
             first_name,
             last_name,
             citizen_id,
-            password
+            password_hash
         )
         .fetch_one(&mut *tx)
         .await?;
@@ -76,7 +80,7 @@ impl AuthRepo for SqlxAuthRepo {
             return Err(AppError::Unauthorized);
         };
         // NOTE: password is stored as plaintext in migrations; in real code hash+verify
-        if r.password != password {
+        if !verify_password(&password, &r.password)? {
             return Err(AppError::Unauthorized);
         }
         Ok(r.user_id)
@@ -136,6 +140,7 @@ impl AuthRepo for SqlxAuthRepo {
             phone,
             password,
         } = input;
+        let password_hash = hash_password(&password)?;
         let mut tx = self.pool.begin().await?;
         let user_id = sqlx::query_scalar!(
             r#"INSERT INTO users (phone, first_name, last_name, citizen_id, password)
@@ -144,7 +149,7 @@ impl AuthRepo for SqlxAuthRepo {
             first_name,
             last_name,
             citizen_id,
-            password
+            password_hash
         )
         .fetch_one(&mut *tx)
         .await?;
@@ -184,7 +189,7 @@ impl AuthRepo for SqlxAuthRepo {
         let Some(r) = row else {
             return Err(AppError::Unauthorized);
         };
-        if r.password != password {
+        if !verify_password(&password, &r.password)? {
             return Err(AppError::Unauthorized);
         }
         Ok(r.user_id)
