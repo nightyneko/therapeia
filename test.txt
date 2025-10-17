@@ -1,0 +1,218 @@
+
+//for user patinet 
+GET /appointments/status
+[
+{
+appointment_id:number
+department:string,
+doctor_name:stirng
+place_name:string,
+date:string,
+start_time:string,
+end_time:string,
+status:string //status pendding or confirm and date before current
+}
+...
+]
+GET /appointments/status/others
+[
+{
+appointment_id:number
+department:string,
+doctor_name:stirng
+place_name:string,
+date:string,
+start_time:string,
+end_time:string,
+status:string //status canceled or reject or confirm with date pass current date
+}
+...
+]
+GET /appointments/:date
+[
+{
+appointment_id:number
+department:string,
+doctor_name:stirng,
+place_name:string,
+date:string,
+start_time:string,
+end_time:string,
+status:string //accept
+
+}
+...
+]
+GET /appointments/doctor
+doctors:[
+{
+doctor_id:string
+doctor_name:stirng
+}
+]
+GET /appointments/doctor/:doctor_id
+time_slots:[
+{
+start_time:string
+end_time:string
+}
+]
+POST /appointments
+
+{
+doctor_name:stirng
+date:string,
+start_time:string,
+end_time:string,
+}
+
+PATCH /appointments/:appointment_id/canceled
+เปลี่ยนสถานะ เป็น canceled
+DELETE /appointments/:appointment_id
+
+GET /shipping/address
+{
+first_name:string,
+last_name:string,
+address:string,
+postal_code:string,
+phone:string,
+lat:float,
+lon:float
+}
+GET /shipping/:type
+0[all] 1[pedding] 2[shipping] 3[canceled] 4[success] 
+{
+order_id:int
+status: int
+items:[
+{
+medicine_id:number
+medicine_name:string
+quantity:number
+unit_price:number
+img_url:string
+}]
+}
+GET /shipping/:order_id/status
+order_id:int,
+shipping_platform:string,// flash express
+status:[
+{
+at:string //timestampz
+details:string
+}
+]
+image_url:string // medicine first image link in this order
+
+GET /shipping/:order_id/map
+ส่งแผนที่ แสดงตำแหน่งของ กับ ที่อยู่ผู้รับ
+
+เป็น file image 
+
+อาจใช้ geoapify สำหรับ อันนี้
+POST /shipping/address
+{
+first_name:string,
+last_name:string,
+address:string,
+postal_code:string,
+phone:string
+lat:float,
+lon:float
+}
+
+PATCH /shipping/address
+{
+first_name:string,
+last_name:string,
+address:string,
+postal_code:string,
+phone:string,
+lat:float,
+lon:float
+}
+
+GET /orders
+items:[
+{
+medicine_id:number,
+amount:number,
+price:number
+medicine_name:string
+img_link:string
+}]
+tot_price:number
+
+POST /order
+shipping_platform: string
+payment_platoform: string
+
+POST /order/:order_id/confirm
+จ่ายเงินแล้ว กรณี QR code  update status ใน order
+
+
+
+
+
+
+
+
+/// for doctor using 
+GET /appointments/by-doctor/:date
+
+
+patient_id:number
+patient_name:string
+start_time:string
+end_time:string
+
+
+
+
+GET /appointments/request
+patient_id:number
+patient_name:string
+start_time:string
+end_time:string
+date: string
+status: int //1[accept], 2[pending] 3[reject] ต้องเป็น pendding
+
+
+GET /appointments/assessed
+patient_id:string
+patient_name:string
+start_time:string
+end_time:string
+date: string
+status: int //1[accept], 2[pending] 3[reject] ต้องไม่เป็น pendding
+
+
+GET /appointments/timeslots
+time_slots:[
+{
+timeslot_id: number
+day_of_weeks: number
+place_name: string
+start_time: string
+end_time: string
+}
+] 
+
+PATCH /appointments/timeslots/:timeslot_id
+timeslot_id: number
+day_of_weeks: number
+place_name: string
+start_time: string
+end_time: string
+  
+
+DELETE /appointments/timeslots/:timeslot_id 
+
+PATCH /appointments/:appointment_id/:type
+type in {accept ,reject}
+//1[accept], 2[pennding] 3[reject] 4[canceled] 
+update status ใน DB
+
+
+and u implement this for me and u can adjust endpoint name if they are conflict or not look proper name 

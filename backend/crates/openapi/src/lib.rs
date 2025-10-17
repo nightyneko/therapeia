@@ -15,8 +15,8 @@ use utoipa_swagger_ui::{Config, SwaggerUi};
         (path = "/diagnoses", api = diagnosis_service::ApiDoc),
         (path = "/prescriptions", api = prescription_service::ApiDoc),
         //(path = "/profile", api = profile_service::ApiDoc),
-        //(path = "/order", api = order_service::ApiDoc),
-        //(path = "/shipping", api = shipping_service::ApiDoc)
+        (path = "/", api = order_service::ApiDoc),
+        (path = "/shipping", api = shipping_service::ApiDoc)
     )
 )]
 pub struct ApiDoc;

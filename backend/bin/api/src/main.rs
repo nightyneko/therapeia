@@ -23,10 +23,8 @@ async fn main() -> anyhow::Result<()> {
     let auth = auth_service::router(pool.clone());
     let diag = diagnosis_service::router(pool.clone());
     let rx = prescription_service::router(pool.clone());
-    //let profiles = profile_service::router(pool.clone());
-    //let catalog = catalog_service::router(pool.clone());
-    //let order = order_service::router(pool.clone());
-    //let ship = shipping_service::router(pool.clone());
+    let order = order_service::router(pool.clone());
+    let ship = shipping_service::router(pool.clone());
 
     // OpenAPI/Swagger
     let openapi = openapi::router::<openapi::ApiDoc>();
@@ -34,10 +32,11 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .nest(
             "/api",
-            appt.merge(auth).merge(diag).merge(rx), //.merge(profiles)
-                                                    //.merge(catalog)
-                                                    //.merge(order)
-                                                    //.merge(ship),
+            appt.merge(auth)
+                .merge(diag)
+                .merge(rx)
+                .merge(order)
+                .merge(ship),
         )
         .nest("/docs", openapi)
         .layer(TraceLayer::new_for_http())
