@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE shipping_address\n            SET first_name = $2,\n                last_name = $3,\n                address = $4,\n                postal_code = $5,\n                phone = $6,\n                lat = $7,\n                lon = $8\n            WHERE patient_id = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Text",
+        "Varchar",
+        "Varchar",
+        "Float8",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "518cc793972a60408df254fccfa13a1d7693a73af19957e831a5921f9d811bdb"
+}

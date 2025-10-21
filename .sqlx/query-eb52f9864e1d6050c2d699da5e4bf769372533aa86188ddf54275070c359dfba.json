@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            timeslot_id,\n            day_of_weeks,\n            place_name,\n            start_time,\n            end_time\n        FROM time_slots\n        WHERE doctor_id = $1\n        ORDER BY day_of_weeks, start_time\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "timeslot_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "day_of_weeks",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "place_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "start_time",
+        "type_info": "Time"
+      },
+      {
+        "ordinal": 4,
+        "name": "end_time",
+        "type_info": "Time"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "eb52f9864e1d6050c2d699da5e4bf769372533aa86188ddf54275070c359dfba"
+}

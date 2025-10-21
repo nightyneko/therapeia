@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                SELECT\n                    oi.order_id,\n                    oi.medicine_id,\n                    m.medicine_name,\n                    oi.quantity,\n                    oi.unit_price::float8 AS \"unit_price!\",\n                    m.image_url AS \"image_url?\"\n                FROM order_items oi\n                JOIN medicines m ON m.medicine_id = oi.medicine_id\n                WHERE oi.order_id = ANY($1)\n                ORDER BY oi.order_id\n                ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "order_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "medicine_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "medicine_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "quantity",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "unit_price!",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 5,
+        "name": "image_url?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      null,
+      true
+    ]
+  },
+  "hash": "d857b9bdd2fe691ed5f04f93148deeb280f825e067b8efd934b0d4205efdc862"
+}
