@@ -1,0 +1,32 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            u.user_id as doctor_id,\n            concat_ws(' ', u.first_name, u.last_name) AS \"doctor_name!\",\n            dp.department AS \"department?\"\n        FROM users u\n        JOIN user_roles ur ON ur.user_id = u.user_id AND ur.role = 'DOCTOR'\n        LEFT JOIN doctor_profile dp ON dp.user_id = u.user_id\n        ORDER BY \"doctor_name!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "doctor_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "doctor_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "department?",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      null,
+      true
+    ]
+  },
+  "hash": "f67e7eebe703d4befbe24935bf98c84c2697267726f9a71ce9bff9efd295fc2c"
+}

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                order_id,\n                status as \"status: _\",\n                shipping_platform,\n                payment_platform\n            FROM orders\n            WHERE patient_id = $1\n            ORDER BY created_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "order_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "status: _",
+        "type_info": {
+          "Custom": {
+            "name": "order_status",
+            "kind": {
+              "Enum": [
+                "PENDING",
+                "SHIPPING",
+                "CANCELED",
+                "SUCCESS"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "shipping_platform",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "payment_platform",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "0c0b7e0f9c14416213a1eb472896b8555a87aac4ba3c42266a3b6b9fb584d5db"
+}

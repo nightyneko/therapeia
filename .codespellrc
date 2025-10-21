@@ -1,2 +1,2 @@
 [codespell]
-skip = target
+skip = target,Cargo.lock

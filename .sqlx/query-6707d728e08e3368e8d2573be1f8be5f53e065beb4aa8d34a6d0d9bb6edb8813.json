@@ -1,0 +1,77 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT\n            a.appointment_id,\n            concat_ws(' ', u.first_name, u.last_name) AS \"doctor_name!\",\n            dp.department AS \"department?\",\n            ts.place_name,\n            a.date,\n            ts.start_time,\n            ts.end_time,\n            a.status as \"status: _\"\n        FROM appointments a\n        JOIN time_slots ts ON ts.timeslot_id = a.timeslot_id\n        JOIN users u ON u.user_id = ts.doctor_id\n        LEFT JOIN doctor_profile dp ON dp.user_id = ts.doctor_id\n        WHERE a.patient_id = $1\n          AND (\n                (a.status = 'PENDING' AND a.date >= $2)\n             OR (a.status = 'ACCEPTED' AND a.date >= $2)\n          )\n        ORDER BY a.date, ts.start_time\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "appointment_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "doctor_name!",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "department?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "place_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "date",
+        "type_info": "Date"
+      },
+      {
+        "ordinal": 5,
+        "name": "start_time",
+        "type_info": "Time"
+      },
+      {
+        "ordinal": 6,
+        "name": "end_time",
+        "type_info": "Time"
+      },
+      {
+        "ordinal": 7,
+        "name": "status: _",
+        "type_info": {
+          "Custom": {
+            "name": "appointment_status",
+            "kind": {
+              "Enum": [
+                "PENDING",
+                "ACCEPTED",
+                "REJECTED",
+                "CANCELED"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Date"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6707d728e08e3368e8d2573be1f8be5f53e065beb4aa8d34a6d0d9bb6edb8813"
+}

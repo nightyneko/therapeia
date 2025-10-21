@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM time_slots\n        WHERE timeslot_id = $1\n          AND doctor_id = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "3f25e0db964fe0253cf06a5283b4391d666687dcee0668c79720b924a1497411"
+}

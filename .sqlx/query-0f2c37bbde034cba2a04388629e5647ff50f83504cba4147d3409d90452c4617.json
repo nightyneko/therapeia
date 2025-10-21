@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO orders (patient_id, shipping_platform, payment_platform, image_url)\n            VALUES ($1, $2, $3, $4)\n            RETURNING order_id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "order_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "0f2c37bbde034cba2a04388629e5647ff50f83504cba4147d3409d90452c4617"
+}
