@@ -38,7 +38,7 @@ impl Ctx {
 
 #[utoipa::path(
     get,
-    path = "/orders",
+    path = "/",
     responses(
         (status = 200, description = "Orders", body = [OrderDetail])
     ),
@@ -56,7 +56,7 @@ async fn list_orders(
 
 #[utoipa::path(
     post,
-    path = "/order",
+    path = "/",
     request_body = CreateOrderReq,
     responses(
         (status = 201, description = "Order created", body = CreateOrderResp),
@@ -84,7 +84,7 @@ async fn create_order(
 
 #[utoipa::path(
     post,
-    path = "/order/{order_id}/confirm",
+    path = "/{order_id}/confirm",
     params(("order_id" = i32, Path)),
     responses(
         (status = 204, description = "Order confirmed"),
@@ -111,8 +111,8 @@ pub fn router(pool: PgPool) -> Router {
     let jwt_keys = JwtKeys::from_secret(&cfg.jwt_secret);
     Router::new()
         .route("/orders", get(list_orders))
-        .route("/order", post(create_order))
-        .route("/order/{order_id}/confirm", post(confirm_order))
+        .route("/orders", post(create_order))
+        .route("/orders/{order_id}/confirm", post(confirm_order))
         .with_state(ctx)
         .layer(Extension(jwt_keys))
 }

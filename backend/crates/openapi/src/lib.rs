@@ -13,7 +13,7 @@ use utoipa_swagger_ui::{Config, SwaggerUi};
         (path = "/users", api = auth_service::ApiDoc),
         (path = "/diagnoses", api = diagnosis_service::ApiDoc),
         (path = "/prescriptions", api = prescription_service::ApiDoc),
-        (path = "/", api = order_service::ApiDoc),
+        (path = "/orders", api = order_service::ApiDoc),
         (path = "/shipping", api = shipping_service::ApiDoc)
     )
 )]
