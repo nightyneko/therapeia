@@ -39,7 +39,7 @@ impl Ctx {
 
 #[utoipa::path(
     post,
-    path = "/",
+    path = "",
     request_body = CreateAppointmentReq,
     responses(
         (status = 200, description = "Book appointment successfully", body = Appointment),

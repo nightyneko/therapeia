@@ -38,7 +38,7 @@ impl Ctx {
 
 #[utoipa::path(
     get,
-    path = "/",
+    path = "",
     responses(
         (status = 200, description = "Orders", body = [OrderDetail])
     ),
@@ -56,7 +56,7 @@ async fn list_orders(
 
 #[utoipa::path(
     post,
-    path = "/",
+    path = "",
     request_body = CreateOrderReq,
     responses(
         (status = 201, description = "Order created", body = CreateOrderResp),
