@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO order_items (order_id, medicine_id, quantity, unit_price)\n            VALUES ($1, $2, $3, $4::float8)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e5b3af978be6313ec2583df9210f2082548342b35890b846580a44b41b45a41d"
+}

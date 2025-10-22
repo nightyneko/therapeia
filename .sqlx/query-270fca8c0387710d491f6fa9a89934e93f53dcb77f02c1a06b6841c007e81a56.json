@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                a.prescription_id,\n                a.patient_id,\n                b.medicine_name,\n                a.dosage,\n                a.amount,\n                a.on_going,\n                a.doctor_comment AS \"doctor_comment?\",\n                b.image_url AS \"image_url?\"\n            FROM prescriptions a \n            JOIN medicines b ON a.medicine_id = b.medicine_id\n            WHERE a.patient_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "prescription_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "patient_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "medicine_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "dosage",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "amount",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "on_going",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 6,
+        "name": "doctor_comment?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "image_url?",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "270fca8c0387710d491f6fa9a89934e93f53dcb77f02c1a06b6841c007e81a56"
+}

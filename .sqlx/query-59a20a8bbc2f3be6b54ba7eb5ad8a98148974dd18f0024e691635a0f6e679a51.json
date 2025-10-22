@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO medical_rights (mr_id, name, details, img_url)\n                   OVERRIDING SYSTEM VALUE VALUES ($1,$2,$3,$4)\n                   ON CONFLICT (mr_id) DO UPDATE SET name=EXCLUDED.name, details=EXCLUDED.details, img_url=EXCLUDED.img_url",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "59a20a8bbc2f3be6b54ba7eb5ad8a98148974dd18f0024e691635a0f6e679a51"
+}

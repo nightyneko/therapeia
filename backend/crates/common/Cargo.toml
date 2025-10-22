@@ -7,5 +7,11 @@ edition = "2024"
 anyhow = "1.0.100"
 axum = "0.8.6"
 dotenvy = "0.15.7"
-sqlx = "0.8.6"
+sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio", "time", "uuid"] }
 thiserror = "2.0.17"
+serde = { version = "1.0", features = ["derive"] }
+time = { version = "0.3", features = ["serde"] }
+uuid = { version = "1", features = ["serde"] }
+jsonwebtoken = "9"
+async-trait = "0.1"
+bcrypt = "0.17"

@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT age as \"age?\",\n                      gender as \"gender?\",\n                      height_cm::float8 as \"height_cm?\",\n                      weight_kg::float8 as \"weight_kg?\",\n                      medical_conditions as \"medical_conditions?\",\n                      drug_allergies as \"drug_allergies?\",\n                      updated_at\n               FROM patient_health_info\n               WHERE patient_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "age?",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "gender?",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "height_cm?",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "weight_kg?",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 4,
+        "name": "medical_conditions?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "drug_allergies?",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      null,
+      null,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "a1525043f9560e332bc6a201e9af080a062d2ed5d8dcc90324e4c9fe78ee5be7"
+}

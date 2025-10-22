@@ -1,0 +1,21 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO shipping_address (\n                patient_id, first_name, last_name, address, postal_code, phone, lat, lon\n            )\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)\n            ON CONFLICT (patient_id) DO UPDATE\n            SET first_name = EXCLUDED.first_name,\n                last_name = EXCLUDED.last_name,\n                address = EXCLUDED.address,\n                postal_code = EXCLUDED.postal_code,\n                phone = EXCLUDED.phone,\n                lat = EXCLUDED.lat,\n                lon = EXCLUDED.lon\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Text",
+        "Varchar",
+        "Varchar",
+        "Float8",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6bd2b374bafbfdaedb681fe7905eddeaa044a452ae2eb3ef76b81cbc9240c28e"
+}

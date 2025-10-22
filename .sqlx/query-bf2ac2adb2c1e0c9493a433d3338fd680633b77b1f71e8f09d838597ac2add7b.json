@@ -1,0 +1,41 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                sa.lat AS address_lat,\n                sa.lon AS address_lon,\n                status_point.lat AS shipment_lat,\n                status_point.lon AS shipment_lon\n            FROM orders o\n            LEFT JOIN shipping_address sa ON sa.patient_id = o.patient_id\n            LEFT JOIN LATERAL (\n                SELECT lat, lon\n                FROM shipping_status\n                WHERE order_id = o.order_id\n                ORDER BY at DESC\n                LIMIT 1\n            ) status_point ON TRUE\n            WHERE o.order_id = $1\n              AND o.patient_id = $2\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "address_lat",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 1,
+        "name": "address_lon",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 2,
+        "name": "shipment_lat",
+        "type_info": "Float8"
+      },
+      {
+        "ordinal": 3,
+        "name": "shipment_lon",
+        "type_info": "Float8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "bf2ac2adb2c1e0c9493a433d3338fd680633b77b1f71e8f09d838597ac2add7b"
+}

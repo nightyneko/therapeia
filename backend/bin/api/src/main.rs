@@ -1,6 +1,7 @@
 use axum::Router;
 use common::config::AppConfig;
 use db::{connect, migrate};
+use std::env;
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing_subscriber::{EnvFilter, fmt};
 
@@ -16,17 +17,19 @@ async fn main() -> anyhow::Result<()> {
     let cfg = AppConfig::from_env();
 
     let pool = connect(&cfg).await?;
-    migrate(&pool).await?;
+    if env::var("SKIP_MIGRATIONS").is_err() {
+        migrate(&pool).await?;
+    } else {
+        tracing::warn!("SKIP_MIGRATIONS set; skipping database migrations");
+    }
 
     // Service routers
     let appt = appointment_service::router(pool.clone());
-    //let auth = auth_service::router(pool.clone());
-    //let profiles = profile_service::router(pool.clone());
-    //let catalog = catalog_service::router(pool.clone());
-    //let diag = diagnosis_service::router(pool.clone());
-    //let rx = prescription_service::router(pool.clone());
-    //let order = order_service::router(pool.clone());
-    //let ship = shipping_service::router(pool.clone());
+    let auth = auth_service::router(pool.clone());
+    let diag = diagnosis_service::router(pool.clone());
+    let rx = prescription_service::router(pool.clone());
+    let order = order_service::router(pool.clone());
+    let ship = shipping_service::router(pool.clone());
 
     // OpenAPI/Swagger
     let openapi = openapi::router::<openapi::ApiDoc>();
@@ -34,13 +37,11 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .nest(
             "/api",
-            appt, //.merge(profiles)
-                 //.merge(catalog)
-                 //.merge(auth)
-                 //.merge(diag)
-                 //.merge(rx)
-                 //.merge(order)
-                 //.merge(ship),
+            appt.merge(auth)
+                .merge(diag)
+                .merge(rx)
+                .merge(order)
+                .merge(ship),
         )
         .nest("/docs", openapi)
         .layer(TraceLayer::new_for_http())

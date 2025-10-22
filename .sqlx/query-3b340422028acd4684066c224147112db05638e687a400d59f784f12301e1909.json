@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT timeslot_id\n        FROM time_slots\n        WHERE doctor_id = $1\n          AND day_of_weeks = $2\n          AND start_time = $3\n          AND end_time = $4\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "timeslot_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Time",
+        "Time"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "3b340422028acd4684066c224147112db05638e687a400d59f784f12301e1909"
+}
